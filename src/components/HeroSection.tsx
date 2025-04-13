@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import Header_image from '../../public/images/landing_pages/header_image.jpg';
+import Model_image from '../../public/images/landing_pages/model-watch.png';
 
 const HeroSection = () => {
   return (
@@ -13,15 +15,9 @@ const HeroSection = () => {
           <p className="text-gray-600 mb-6">
             Amazing Shopping play an important role in making the Sale shop a brand
           </p>
-          <div className="flex items-center justify-center md:justify-start space-x-4 mb-6">
-            {/* Thêm logo các thương hiệu */}
-            <div>Stock</div>
-            <div>NETFLIX</div>
-            <div>PayPal</div>
-          </div>
           <div className="mt-8">
             <Image
-              src="/images/nike-shoes.png" // Thay thế bằng đường dẫn ảnh thật
+              src={Model_image} // Thay thế bằng đường dẫn ảnh thật
               alt="Nike air shoes"
               width={200}
               height={150}
@@ -37,7 +33,7 @@ const HeroSection = () => {
         {/* Giữa: Hình ảnh người mẫu lớn */}
         <div className="relative">
           <Image
-            src="/images/model-watch.png" // Thay thế bằng đường dẫn ảnh thật
+            src= {Header_image} // Thay thế bằng đường dẫn ảnh thật
             alt="Model wearing watch"
             layout="responsive"
             width={500}
@@ -50,7 +46,7 @@ const HeroSection = () => {
         <div className="text-center md:text-right">
           <div className="mb-8">
             <Image
-              src="/images/sunglasses.png" // Thay thế bằng đường dẫn ảnh thật
+              src={Model_image} // Thay thế bằng đường dẫn ảnh thật
               alt="Best sunglasses for men"
               width={200}
               height={100}
