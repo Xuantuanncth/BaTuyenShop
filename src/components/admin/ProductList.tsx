@@ -1,91 +1,133 @@
-import { useState, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { db } from '../../utils/firebaseConfig' // Import Firestore instance
-import { collection, addDoc } from 'firebase/firestore'
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore'
 
 interface Product {
-  id: number
+  id: string // Use string since Firestore document IDs are strings
   name: string
   description: string
   price: number
+  category: string
   quantity: number
   image?: string
+  public_id?: string // Add public_id to store Cloudinary image ID
 }
 
-const initialProducts: Product[] = [
-  {
-    id: 1,
-    name: 'Áo Thun Nông Dân',
-    description: 'Thoáng mát, thích hợp làm việc ngoài trời.',
-    price: 100000,
-    quantity: 50,
-  },
-  {
-    id: 2,
-    name: 'Thức Ăn Gia Cầm 25kg',
-    description: 'Cung cấp đầy đủ dinh dưỡng cho gia cầm.',
-    price: 250000,
-    quantity: 30,
-  },
-]
-
 const ProductList = () => {
-  const [products, setProducts] = useState<Product[]>(initialProducts)
-  const fileInputRef = useRef<HTMLInputElement | null>(null) // Create a ref for the file input
+  const [products, setProducts] = useState<Product[]>([]) // Initialize with an empty array
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [newProduct, setNewProduct] = useState<Product>({
-    id: 0,
+    id: '',
     name: '',
     description: '',
+    category: 'quan-ao', // Default category
     price: 0,
     quantity: 0,
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
 
+  // Fetch all products from Firebase
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'products'))
+        const fetchedProducts: Product[] = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Product[]
+        setProducts(fetchedProducts)
+        console.log(`Fetched ${fetchedProducts.length} products from Firebase.`)
+      } catch (error) {
+        console.error('Error fetching products:', error)
+      }
+    }
+
+    fetchProducts()
+  }, [])
+
   const handleFileButtonClick = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.click() // Trigger the hidden file input
+      fileInputRef.current.click()
     }
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImageFile(e.target.files?.[0] || null) // Set the selected file
-  }
-
-  const handleAdd = () => {
-    setIsModalOpen(true)
+    setImageFile(e.target.files?.[0] || null)
   }
 
   const handleSave = async () => {
     try {
       let imageUrl = ''
+      let publicId = ''
       if (imageFile) {
-        const storage = getStorage()
-        const storageRef = ref(storage, `products/${imageFile.name}`)
-        await uploadBytes(storageRef, imageFile)
-        imageUrl = await getDownloadURL(storageRef)
+        const reader = new FileReader()
+        reader.readAsDataURL(imageFile)
+        const base64 = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string)
+          reader.onerror = (error) => reject(error)
+        })
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ file: base64 }),
+        })
+
+        const data = await response.json()
+        if (response.ok) {
+          imageUrl = data.url
+          publicId = data.public_id
+        } else {
+          throw new Error(data.error || 'Failed to upload image')
+        }
       }
 
-      const productData = { ...newProduct, image: imageUrl }
+      const productData = { ...newProduct, image: imageUrl, public_id: publicId }
       const docRef = await addDoc(collection(db, 'products'), productData)
 
       setProducts([...products, { ...productData, id: docRef.id }])
       setIsModalOpen(false)
-      setNewProduct({ id: 0, name: '', description: '', price: 0, quantity: 0 })
+      setNewProduct({ id: '', name: '', description: '', category: 'quan-ao', price: 0, quantity: 0 })
       setImageFile(null)
     } catch (error) {
       console.error('Error adding product:', error)
     }
   }
 
-  const handleDelete = (id: number) => {
-    setProducts(products.filter((product) => product.id !== id))
+  const handleDelete = async (productId: string, publicId?: string) => {
+    try {
+      // Delete the product document from Firebase
+      await deleteDoc(doc(db, 'products', productId))
+      console.log(`Deleted product with ID: ${productId} from Firebase.`)
+
+      // If the product has an associated image, delete it from Cloudinary
+      if (publicId) {
+        const response = await fetch('/api/deleteImage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ public_id: publicId }),
+        })
+
+        const data = await response.json()
+        if (response.ok) {
+          console.log(`Deleted image with public_id: ${publicId} from Cloudinary.`)
+        } else {
+          console.error('Error deleting image from Cloudinary:', data.error)
+        }
+      }
+
+      // Remove the product from the local state
+      setProducts(products.filter(product => product.id !== productId))
+    } catch (error) {
+      console.error('Error deleting product:', error)
+    }
   }
 
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Danh sách sản phẩm</h1>
-      <button onClick={handleAdd} className="mb-4 px-4 py-2 bg-blue-600 text-white rounded">
+      <button onClick={() => setIsModalOpen(true)} className="mb-4 px-4 py-2 bg-blue-600 text-white rounded">
         Thêm sản phẩm
       </button>
       <table className="min-w-full bg-white border">
@@ -95,25 +137,29 @@ const ProductList = () => {
             <th className="py-2 px-4 border-b">Mô tả</th>
             <th className="py-2 px-4 border-b">Giá</th>
             <th className="py-2 px-4 border-b">Số lượng</th>
+            <th className="py-2 px-4 border-b">Hình ảnh</th>
             <th className="py-2 px-4 border-b">Hành động</th>
           </tr>
         </thead>
         <tbody>
-          {products.map((product) => (
+          {products.map(product => (
             <tr key={product.id}>
               <td className="py-2 px-4 border-b">{product.name}</td>
               <td className="py-2 px-4 border-b">{product.description}</td>
               <td className="py-2 px-4 border-b">{product.price.toLocaleString()}₫</td>
               <td className="py-2 px-4 border-b">{product.quantity}</td>
               <td className="py-2 px-4 border-b">
+                {product.image ? (
+                  <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                ) : (
+                  'No Image'
+                )}
+              </td>
+              <td className="py-2 px-4 border-b">
+                <button className="mr-2 px-2 py-1 bg-yellow-500 text-white rounded">Sửa</button>
                 <button
-                  className="mr-2 px-2 py-1 bg-yellow-500 text-white rounded"
-                >
-                  Sửa
-                </button>
-                <button
-                  onClick={() => handleDelete(product.id)}
-                  className="px-2 py-1 bg-red-600 text-white rounded"
+                  onClick={() => handleDelete(product.id, product.public_id)}
+                  className="px-2 py-1 mt-2 bg-red-600 text-white rounded"
                 >
                   Xóa
                 </button>
@@ -131,27 +177,36 @@ const ProductList = () => {
               type="text"
               placeholder="Tên sản phẩm"
               value={newProduct.name}
-              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+              onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
               className="w-full mb-2 p-2 border rounded"
             />
             <textarea
               placeholder="Mô tả"
               value={newProduct.description}
-              onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+              onChange={e => setNewProduct({ ...newProduct, description: e.target.value })}
               className="w-full mb-2 p-2 border rounded"
             />
+            <select
+              value={newProduct.category}
+              onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
+              className="w-full mb-2 p-2 border rounded"
+            >
+              <option value="quan-ao">Quần áo</option>
+              <option value="thuc-an">Thức ăn chăn nuôi</option>
+              <option value="phan-bon">Phân bón</option>
+            </select>
             <input
               type="number"
               placeholder="Giá"
               value={newProduct.price}
-              onChange={(e) => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
+              onChange={e => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
               className="w-full mb-2 p-2 border rounded"
             />
             <input
               type="number"
               placeholder="Số lượng"
               value={newProduct.quantity}
-              onChange={(e) => setNewProduct({ ...newProduct, quantity: Number(e.target.value) })}
+              onChange={e => setNewProduct({ ...newProduct, quantity: Number(e.target.value) })}
               className="w-full mb-2 p-2 border rounded"
             />
             <button
@@ -162,22 +217,16 @@ const ProductList = () => {
             </button>
             <input
               type="file"
-              ref={fileInputRef} // Attach the ref to the input
+              ref={fileInputRef}
               onChange={handleFileChange}
-              className="hidden" // Hide the file input
+              className="hidden"
             />
             {imageFile && <p className="text-gray-600">Đã chọn: {imageFile.name}</p>}
             <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 bg-gray-300 rounded"
-              >
+              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-300 rounded">
                 Hủy
               </button>
-              <button
-                onClick={handleSave}
-                className="px-4 py-2 bg-blue-600 text-white rounded"
-              >
+              <button onClick={handleSave} className="px-4 py-2 bg-blue-600 text-white rounded">
                 Lưu
               </button>
             </div>

@@ -9,7 +9,7 @@ interface Product {
   id: string
   name: string
   description: string
-  image: string
+  image: string // URL of the product image
   category: string
   quantity?: number
   price?: number
@@ -21,15 +21,23 @@ export default function ProductSection({ title, category }: { title: string; cat
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
   useEffect(() => {
+    console.log(`Category passed to ProductSection: ${category}`);
     const fetchProducts = async () => {
-      const q = query(collection(db, 'products'), where('category', '==', category))
-      const querySnapshot = await getDocs(q)
-      const products: Product[] = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Product[]
-      setFiltered(products)
-      setStart(0)
+      try {
+        const q = query(collection(db, 'products'), where('category', '==', category))
+        const querySnapshot = await getDocs(q)
+        const products: Product[] = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Product[]
+        setFiltered(products)
+        setStart(0)
+
+        // Debug: Log the number of products fetched
+        console.log(`Fetched ${products.length} products from Firebase.`)
+      } catch (error) {
+        console.error('Error fetching products:', error)
+      }
     }
 
     fetchProducts()
@@ -43,6 +51,11 @@ export default function ProductSection({ title, category }: { title: string; cat
     <section id={category} className="py-16 px-8">
       <h2 className="text-4xl font-bold mb-10 text-center text-blue-700">{title}</h2>
 
+      {/* Debug: Display the number of products fetched */}
+      <p className="text-center text-gray-500 mb-4">
+        Debug: Fetched {filtered.length} products from Firebase.
+      </p>
+
       <div className="flex justify-center gap-10 flex-wrap min-h-[400px]">
         <AnimatePresence mode="wait">
           {visible.map((p) => (
@@ -54,10 +67,14 @@ export default function ProductSection({ title, category }: { title: string; cat
               transition={{ duration: 0.3 }}
               className="bg-white rounded-2xl shadow-xl p-6 w-96 transition-transform transform hover:scale-105"
             >
-              <img src={p.image} alt={p.name} className="w-full h-60 object-cover rounded-xl" />
+              <img
+                src={p.image} // Display the image from the `image` field
+                alt={p.name}
+                className="w-full h-60 object-cover rounded-xl"
+              />
               <h3 className="text-2xl font-semibold mt-4">{p.name}</h3>
               <p className="text-gray-600 text-base mt-2">{p.description}</p>
-              <p className="text-blue-700 text-lg font-bold mt-2">Giá: {p.price}</p>
+              <p className="text-blue-700 text-lg font-bold mt-2">Giá: {p.price?.toLocaleString()}₫</p>
               <button
                 onClick={() => setSelectedProduct(p)}
                 className="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
