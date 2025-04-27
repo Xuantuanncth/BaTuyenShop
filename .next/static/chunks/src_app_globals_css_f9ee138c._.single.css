@@ -57,6 +57,7 @@
     --color-gray-600: oklch(44.6% .03 256.802);
     --color-gray-700: oklch(37.3% .034 259.733);
     --color-gray-800: oklch(27.8% .033 256.848);
+    --color-black: #000;
     --color-white: #fff;
     --spacing: .25rem;
     --container-md: 28rem;
@@ -498,6 +499,14 @@
     justify-content: center;
   }
 
+  .justify-end {
+    justify-content: flex-end;
+  }
+
+  .gap-2 {
+    gap: calc(var(--spacing) * 2);
+  }
+
   .gap-6 {
     gap: calc(var(--spacing) * 6);
   }
@@ -556,6 +565,10 @@
     border-bottom-width: 1px;
   }
 
+  .bg-black {
+    background-color: var(--color-black);
+  }
+
   .bg-blue-500 {
     background-color: var(--color-blue-500);
   }
@@ -600,6 +613,10 @@
 
   .object-cover {
     object-fit: cover;
+  }
+
+  .p-2 {
+    padding: calc(var(--spacing) * 2);
   }
 
   .p-6 {
