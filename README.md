@@ -34,3 +34,71 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+# 📚 Project Documentation
+
+## 🔥 Firebase
+
+### Firebase dùng để làm gì?
+
+- Firebase là nền tảng backend-as-a-service (BaaS) hỗ trợ web và mobile app.
+- Trong project này, **Firebase Cloud Firestore** được dùng làm **database** để lưu trữ:
+  - Thông tin sản phẩm (tên, mô tả, giá, loại, URL hình ảnh).
+
+### Firebase được sử dụng như thế nào?
+
+- Tạo Project Firebase.
+- Kết nối Web App với Firebase SDK.
+- Sử dụng **Firestore Database** để:
+  - Thêm mới sản phẩm.
+  - Lấy danh sách sản phẩm.
+  - Hiển thị sản phẩm ra giao diện web.
+- Lưu **URL hình ảnh** (không lưu file ảnh trực tiếp).
+
+**Lưu ý:**  
+- Firebase Storage yêu cầu nâng cấp billing plan (Blaze) mới sử dụng được.  
+- Vì thế, project này **không dùng Firebase Storage**, chỉ dùng Firestore.
+
+---
+
+## ☁️ Cloudinary
+
+### Cloudinary dùng để làm gì?
+
+- Cloudinary là dịch vụ lưu trữ và quản lý file media (ảnh, video...) chuyên nghiệp.
+- Trong project này, **Cloudinary** được dùng để:
+  - Upload và lưu trữ ảnh sản phẩm.
+  - Lấy **URL public** của ảnh để lưu vào Firestore.
+
+### Cloudinary được sử dụng như thế nào?
+
+- Đăng ký tài khoản miễn phí trên [cloudinary.com](https://cloudinary.com/).
+- Upload ảnh sản phẩm:
+  - **Cách 1**: Upload thủ công trên Dashboard → copy URL ảnh.
+  - **Cách 2**: Tích hợp Cloudinary Upload Widget để upload ảnh trực tiếp từ web app.
+- Sau khi upload, Cloudinary trả về một đường link (`secure_url`) → lưu vào Firestore cùng với dữ liệu sản phẩm.
+
+---
+
+# 🚀 Tóm tắt quy trình hoạt động
+
+1. Người quản trị upload ảnh sản phẩm lên **Cloudinary**.
+2. Lấy **URL ảnh** từ Cloudinary.
+3. Tạo sản phẩm mới trên web app, nhập các thông tin sản phẩm và dán **URL ảnh** vào.
+4. Web app lưu toàn bộ thông tin vào **Firestore**.
+5. Người dùng vào web app sẽ thấy sản phẩm với ảnh đầy đủ.
+
+---
+
+# 📦 Kết cấu dữ liệu `Product`
+
+```typescript
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  image: string;    // URL ảnh từ Cloudinary
+  category: string;
+  quantity?: number;
+  price?: number;
+}
