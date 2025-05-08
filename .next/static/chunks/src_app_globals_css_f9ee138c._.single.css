@@ -684,10 +684,6 @@
     padding-block: calc(var(--spacing) * 20);
   }
 
-  .pt-2 {
-    padding-top: calc(var(--spacing) * 2);
-  }
-
   .text-center {
     text-align: center;
   }

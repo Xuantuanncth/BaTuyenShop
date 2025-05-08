@@ -76,9 +76,11 @@ const ProductList = () => {
 
         const data = await response.json()
         if (response.ok) {
+          console.log('Image uploaded successfully:', data)
           imageUrl = data.url
-          publicId = data.public_id
+          publicId = data.public_id // Extract public_id from the response
         } else {
+          console.error('Error uploading image:', data.error)
           throw new Error(data.error || 'Failed to upload image')
         }
       }
@@ -98,8 +100,9 @@ const ProductList = () => {
   const handleDelete = async (productId: string, publicId?: string) => {
     try {
       // Delete the product document from Firebase
-      await deleteDoc(doc(db, 'products', productId))
       console.log(`Deleted product with ID: ${productId} from Firebase.`)
+      console.log(`Deleted product with ID: ${publicId} from Firebase.`)
+      await deleteDoc(doc(db, 'products', productId))
 
       // If the product has an associated image, delete it from Cloudinary
       if (publicId) {
@@ -195,6 +198,7 @@ const ProductList = () => {
               <option value="thuc-an">Thức ăn chăn nuôi</option>
               <option value="phan-bon">Phân bón</option>
             </select>
+            Giá
             <input
               type="number"
               placeholder="Giá"
@@ -202,6 +206,7 @@ const ProductList = () => {
               onChange={e => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
               className="w-full mb-2 p-2 border rounded"
             />
+            Số lượng
             <input
               type="number"
               placeholder="Số lượng"

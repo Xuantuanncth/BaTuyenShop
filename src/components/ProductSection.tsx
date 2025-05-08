@@ -24,28 +24,26 @@ export default function ProductSection({ title, category }: { title: string; cat
     console.log(`Category passed to ProductSection: ${category}`);
     const fetchProducts = async () => {
       try {
-        const q = query(collection(db, 'products'), where('category', '==', category))
-        const querySnapshot = await getDocs(q)
+        const q = query(collection(db, 'products'), where('category', '==', category));
+        const querySnapshot = await getDocs(q);
         const products: Product[] = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Product[]
-        setFiltered(products)
-        setStart(0)
-
-        // Debug: Log the number of products fetched
-        console.log(`Fetched ${products.length} products from Firebase.`)
+          id: doc.id, // Use Firestore document ID as the unique identifier
+          ...doc.data(),
+        })) as Product[];
+        setFiltered(products);
       } catch (error) {
-        console.error('Error fetching products:', error)
+        console.error('Error fetching products:', error);
       }
-    }
+    };
 
-    fetchProducts()
-  }, [category])
+    fetchProducts();
+  }, [category]);
 
   const visible = filtered.slice(start, start + 3)
   const canPrev = start > 0
   const canNext = start + 3 < filtered.length
+
+  console.log(visible.map((p) => p.id));
 
   return (
     <section id={category} className="py-16 px-8">
@@ -60,7 +58,7 @@ export default function ProductSection({ title, category }: { title: string; cat
         <AnimatePresence mode="wait">
           {visible.map((p) => (
             <motion.div
-              key={p.id}
+              key={p.id} // Use the unique Firestore document ID as the key
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -30 }}

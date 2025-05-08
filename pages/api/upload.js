@@ -18,7 +18,7 @@ export default async function handler(req, res) {
         folder: 'products', // Optional: Specify a folder in Cloudinary
       });
 
-      res.status(200).json({ url: uploadResult.secure_url }); // Return the uploaded image URL
+      res.status(200).json({ url: uploadResult.secure_url, public_id: uploadResult.public_id }); // Return the uploaded image URL and public_id
     } catch (error) {
       console.error('Error uploading to Cloudinary:', error);
       res.status(500).json({ error: 'Failed to upload image' });
