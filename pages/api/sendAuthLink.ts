@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(200).json({ message: 'Authentication link sent to email' })
     } catch (error) {
       console.error('Error sending authentication link:', error)
-      res.status(400).json({ message: 'Failed to send authentication link', error: error.message })
+      res.status(400).json({ message: 'Failed to send authentication link', error})
     }
   } else {
     res.status(405).json({ message: 'Method not allowed' })

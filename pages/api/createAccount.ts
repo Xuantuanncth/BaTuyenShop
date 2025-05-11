@@ -12,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ message: 'Account created successfully', user: userCredential.user })
     } catch (error) {
       console.error('Error creating account:', error)
-      return res.status(400).json({ message: 'Failed to create account', error: error.message })
+      return res.status(400).json({ message: 'Failed to create account', error })
     }
   }
 
