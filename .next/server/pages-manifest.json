@@ -1,7 +1,10 @@
 {
   "/_app": "pages/_app.js",
+  "/api/createAccount": "pages/api/createAccount.js",
   "/_error": "pages/_error.js",
   "/api/deleteImage": "pages/api/deleteImage.js",
+  "/api/login": "pages/api/login.js",
+  "/api/sendAuthLink": "pages/api/sendAuthLink.js",
   "/api/upload": "pages/api/upload.js",
   "/_document": "pages/_document.js",
   "/404": "pages/404.html"
