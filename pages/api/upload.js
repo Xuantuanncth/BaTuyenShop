@@ -1,11 +1,11 @@
 // filepath: d:\Working\NextJs\BaTuyenShop\pages\api\upload.js
 import { v2 as cloudinary } from 'cloudinary';
 
-// Configure Cloudinary
+// Configure Cloudinary using environment variables
 cloudinary.config({
-  cloud_name: 'dr5ytgsg4', // Replace with your Cloudinary cloud name
-  api_key: '817357978648681', // Replace with your Cloudinary API key
-  api_secret: 'S3S8Z79elfVoEwGF3CYNVOMm7jw', // Replace with your Cloudinary API secret
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, // Cloudinary cloud name from .env.local
+  api_key: process.env.CLOUDINARY_API_KEY, // Cloudinary API key from .env.local
+  api_secret: process.env.CLOUDINARY_API_SECRET, // Cloudinary API secret from .env.local
 });
 
 export default async function handler(req, res) {

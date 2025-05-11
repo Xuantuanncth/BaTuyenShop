@@ -47,9 +47,9 @@ export default function ProductSection({ title, category }: { title: string; cat
       <h2 className="text-4xl font-bold mb-10 text-center text-blue-700">{title}</h2>
       <div className="flex justify-center gap-10 flex-wrap min-h-[400px]">
         <AnimatePresence mode="wait">
-          {visible.map((p) => (
+          {visible.map((p, index) => (
             <motion.div
-              key={p.id}
+              key={p.id || index}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -30 }}
