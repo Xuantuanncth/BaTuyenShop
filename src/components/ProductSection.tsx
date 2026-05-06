@@ -1,21 +1,30 @@
 'use client'
-import { useState, useEffect } from 'react'
+
+import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import ProductModal from './ProductModal'
 import { collection, getDocs, query, where } from 'firebase/firestore'
-import { db } from '../utils/firebaseConfig' 
+import ProductModal from './ProductModal'
+import { getDb } from '../utils/firebaseConfig'
 
 interface Product {
-  id: string // Firestore document IDs are strings
+  id: string
   name: string
   description: string
-  image: string // URL of the product image
+  image: string
   category: string
   quantity?: number
   price?: number
 }
 
-export default function ProductSection({ title, category }: { title: string; category: string }) {
+export default function ProductSection({
+  title,
+  category,
+  eyebrow,
+}: {
+  title: string
+  category: string
+  eyebrow: string
+}) {
   const [start, setStart] = useState(0)
   const [filtered, setFiltered] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -23,10 +32,10 @@ export default function ProductSection({ title, category }: { title: string; cat
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const q = query(collection(db, 'products'), where('category', '==', category))
+        const q = query(collection(getDb(), 'products'), where('category', '==', category))
         const querySnapshot = await getDocs(q)
         const products: Product[] = querySnapshot.docs.map(doc => ({
-          id: doc.id, // Firestore document ID is a string
+          id: doc.id,
           ...doc.data(),
         })) as Product[]
         setFiltered(products)
@@ -43,9 +52,18 @@ export default function ProductSection({ title, category }: { title: string; cat
   const canNext = start + 3 < filtered.length
 
   return (
-    <section id={category} className="py-16 px-8">
-      <h2 className="text-4xl font-bold mb-10 text-center text-blue-700">{title}</h2>
-      <div className="flex justify-center gap-10 flex-wrap min-h-[400px]">
+    <section id={category} className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mb-8 flex flex-col justify-between gap-4 border-b border-stone-200 pb-6 sm:flex-row sm:items-end">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">{eyebrow}</p>
+          <h2 className="mt-2 text-3xl font-semibold text-slate-950 sm:text-4xl">{title}</h2>
+        </div>
+        <p className="max-w-md text-sm leading-6 text-slate-600">
+          {filtered.length > 0 ? `${filtered.length} sản phẩm đang hiển thị trong danh mục này.` : 'Danh mục đang được cập nhật sản phẩm.'}
+        </p>
+      </div>
+
+      <div className="grid min-h-[420px] grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence mode="wait">
           {visible.map((p, index) => (
             <motion.div
@@ -54,38 +72,50 @@ export default function ProductSection({ title, category }: { title: string; cat
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -30 }}
               transition={{ duration: 0.3 }}
-              className="bg-white rounded-2xl shadow-xl p-6 w-96 transition-transform transform hover:scale-105"
+              className="group overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-950/10"
             >
-              <img src={p.image} alt={p.name} className="w-full h-60 object-cover rounded-xl" />
-              <h3 className="text-2xl font-semibold mt-4">{p.name}</h3>
-              <p className="text-gray-600 text-base mt-2">{p.description}</p>
-              <p className="text-blue-700 text-lg font-bold mt-2">Giá: {p.price?.toLocaleString()}₫</p>
-              <button
-                onClick={() => setSelectedProduct(p)}
-                className="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              >
-                Xem chi tiết
-              </button>
+              <div className="aspect-[4/3] overflow-hidden bg-stone-100">
+                <img src={p.image} alt={p.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+              </div>
+              <div className="p-5">
+                <h3 className="line-clamp-2 text-xl font-semibold text-slate-950">{p.name}</h3>
+                <p className="mt-2 line-clamp-3 min-h-[72px] text-sm leading-6 text-slate-600">{p.description}</p>
+                <div className="mt-5 flex items-center justify-between gap-4">
+                  <p className="text-lg font-semibold text-emerald-800">
+                    {typeof p.price === 'number' ? `${p.price.toLocaleString('vi-VN')} VND` : 'Liên hệ'}
+                  </p>
+                  <button
+                    onClick={() => setSelectedProduct(p)}
+                    className="inline-flex h-10 items-center justify-center rounded-lg bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800"
+                  >
+                    Chi tiết
+                  </button>
+                </div>
+              </div>
             </motion.div>
           ))}
         </AnimatePresence>
       </div>
-      <div className="flex justify-center gap-6 mt-8">
+
+      <div className="mt-8 flex justify-center gap-3">
         <button
-          className={`px-5 py-3 rounded-full text-lg bg-gray-300 hover:bg-gray-400 ${!canPrev ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`flex size-11 items-center justify-center rounded-lg border border-stone-300 bg-white text-lg text-slate-700 transition hover:border-emerald-300 hover:text-emerald-800 ${!canPrev ? 'cursor-not-allowed opacity-40' : ''}`}
           onClick={() => canPrev && setStart(start - 3)}
           disabled={!canPrev}
+          aria-label="Sản phẩm trước"
         >
-          ◀
+          &larr;
         </button>
         <button
-          className={`px-5 py-3 rounded-full text-lg bg-gray-300 hover:bg-gray-400 ${!canNext ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`flex size-11 items-center justify-center rounded-lg border border-stone-300 bg-white text-lg text-slate-700 transition hover:border-emerald-300 hover:text-emerald-800 ${!canNext ? 'cursor-not-allowed opacity-40' : ''}`}
           onClick={() => canNext && setStart(start + 3)}
           disabled={!canNext}
+          aria-label="Sản phẩm tiếp theo"
         >
-          ▶
+          &rarr;
         </button>
       </div>
+
       <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </section>
   )

@@ -1,7 +1,7 @@
 // filepath: d:\Working\NextJs\BaTuyenShop\pages\api\login.ts
 import { NextApiRequest, NextApiResponse } from 'next'
 import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '../../src/utils/firebaseConfig'
+import { getAuthClient } from '../../src/utils/firebaseConfig'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       // Authenticate the user with Firebase
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      const userCredential = await signInWithEmailAndPassword(getAuthClient(), email, password)
       const token = await userCredential.user.getIdToken()
 
       // Set the token as a cookie

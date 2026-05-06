@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '../../src/utils/firebaseConfig' // Adjust the import path as necessary
+import { getAuthClient } from '../../src/utils/firebaseConfig'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       // Create a new user with Firebase
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+      const userCredential = await createUserWithEmailAndPassword(getAuthClient(), email, password)
       return res.status(200).json({ message: 'Account created successfully', user: userCredential.user })
     } catch (error) {
       console.error('Error creating account:', error)

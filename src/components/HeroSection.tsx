@@ -1,71 +1,78 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import Header_image from '../../public/images/landing_pages/header_image.jpg';
-import Model_image from '../../public/images/landing_pages/model-watch.png';
+import Image from 'next/image'
+import Link from 'next/link'
+import HeaderImage from '../../public/images/landing_pages/header_image.jpg'
+import ModelImage from '../../public/images/landing_pages/model-watch.png'
 
 const HeroSection = () => {
   return (
-    <section className="bg-gray-100 py-20">
-      <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-        {/* Bên trái: Tiêu đề, mô tả, logo thương hiệu, sản phẩm */}
-        <div className="text-center md:text-left">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-            Discover <span className="text-blue-500">your favorite</span> brand
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Amazing Shopping play an important role in making the Sale shop a brand
+    <section className="relative overflow-hidden pt-16">
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,#fbfaf5_0%,#f0eadb_48%,#dbe7dd_100%)]" />
+      <div className="relative mx-auto grid min-h-[620px] max-w-7xl grid-cols-1 items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+        <div className="max-w-2xl">
+          <p className="mb-5 inline-flex rounded-full border border-emerald-200 bg-white/75 px-4 py-2 text-sm font-semibold text-emerald-800 shadow-sm">
+            Hàng thiết yếu cho gia đình và nông trại
           </p>
-          <div className="mt-8">
-            <Image
-              src={Model_image} // Thay thế bằng đường dẫn ảnh thật
-              alt="Nike air shoes"
-              width={200}
-              height={150}
-              objectFit="contain"
-            />
-            <p className="text-gray-700 mt-2">Nike air shoes</p>
-            <Link href="/nike" className="text-blue-500 hover:underline">
-              Shop now
+          <h1 className="max-w-3xl text-4xl font-semibold leading-[1.05] text-slate-950 sm:text-5xl lg:text-6xl">
+            Ba Tuyen Shop
+          </h1>
+          <p className="mt-6 max-w-xl text-lg leading-8 text-slate-700">
+            Cửa hàng tổng hợp với quần áo, thức ăn chăn nuôi và phân bón được sắp xếp rõ ràng để bạn chọn nhanh hơn.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="#quan-ao"
+              className="inline-flex h-12 items-center justify-center rounded-lg bg-emerald-700 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800"
+            >
+              Xem sản phẩm
             </Link>
+            <Link
+              href="#thuc-an"
+              className="inline-flex h-12 items-center justify-center rounded-lg border border-stone-300 bg-white/80 px-6 text-sm font-semibold text-slate-800 transition hover:border-emerald-300 hover:text-emerald-800"
+            >
+              Hàng nông nghiệp
+            </Link>
+          </div>
+
+          <div className="mt-12 grid max-w-xl grid-cols-3 gap-3">
+            {[
+              ['3+', 'Nhóm hàng'],
+              ['Mỗi ngày', 'Cập nhật'],
+              ['Rõ ràng', 'Giá và mô tả'],
+            ].map(([value, label]) => (
+              <div key={label} className="border-l border-emerald-200 pl-4">
+                <p className="text-lg font-semibold text-slate-950">{value}</p>
+                <p className="mt-1 text-sm text-slate-600">{label}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Giữa: Hình ảnh người mẫu lớn */}
-        <div className="relative">
+        <div className="relative min-h-[420px] overflow-hidden rounded-lg border border-white/70 bg-white/40 shadow-2xl shadow-emerald-950/10">
           <Image
-            src= {Header_image} // Thay thế bằng đường dẫn ảnh thật
-            alt="Model wearing watch"
-            layout="responsive"
-            width={500}
-            height={600}
-            objectFit="cover"
+            src={HeaderImage}
+            alt="Sản phẩm tại Ba Tuyen Shop"
+            fill
+            priority
+            sizes="(min-width: 1024px) 45vw, 100vw"
+            className="object-cover"
           />
-        </div>
-
-        {/* Bên phải: Sản phẩm nổi bật */}
-        <div className="text-center md:text-right">
-          <div className="mb-8">
+          <div className="absolute bottom-5 left-5 right-5 rounded-lg bg-white/90 p-4 shadow-lg backdrop-blur">
+            <p className="text-sm font-semibold text-slate-950">Sản phẩm nổi bật</p>
+            <p className="mt-1 text-sm text-slate-600">Chọn theo từng nhóm hàng, xem chi tiết trong một thao tác.</p>
+          </div>
+          <div className="absolute right-5 top-5 hidden rounded-lg bg-amber-100 p-3 shadow-lg sm:block">
             <Image
-              src={Model_image} // Thay thế bằng đường dẫn ảnh thật
-              alt="Best sunglasses for men"
-              width={200}
-              height={100}
-              objectFit="contain"
+              src={ModelImage}
+              alt="Mặt hàng mẫu"
+              width={92}
+              height={92}
+              className="object-contain"
             />
-            <h3 className="text-xl font-semibold text-gray-800 mt-2">
-              Best sunglasses for men
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Trendy fashion sunglasses for men
-            </p>
-            <Link href="/sunglasses" className="text-blue-500 hover:underline">
-              Show all men sunglasses
-            </Link>
           </div>
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default HeroSection;
+export default HeroSection

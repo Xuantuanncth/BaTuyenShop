@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { db } from '../../utils/firebaseConfig' // Import Firestore instance
+import { getDb } from '../../utils/firebaseConfig'
 import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore'
 
 interface Product {
@@ -31,7 +31,7 @@ const ProductList = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'products'))
+        const querySnapshot = await getDocs(collection(getDb(), 'products'))
         const fetchedProducts: Product[] = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
@@ -86,7 +86,7 @@ const ProductList = () => {
       }
 
       const productData = { ...newProduct, image: imageUrl, public_id: publicId }
-      const docRef = await addDoc(collection(db, 'products'), productData)
+      const docRef = await addDoc(collection(getDb(), 'products'), productData)
 
       setProducts([...products, { ...productData, id: docRef.id }])
       setIsModalOpen(false)
@@ -102,7 +102,7 @@ const ProductList = () => {
       // Delete the product document from Firebase
       console.log(`Deleted product with ID: ${productId} from Firebase.`)
       console.log(`Deleted product with ID: ${publicId} from Firebase.`)
-      await deleteDoc(doc(db, 'products', productId))
+      await deleteDoc(doc(getDb(), 'products', productId))
 
       // If the product has an associated image, delete it from Cloudinary
       if (publicId) {
