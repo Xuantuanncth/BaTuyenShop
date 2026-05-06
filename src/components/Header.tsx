@@ -1,45 +1,51 @@
 "use client";
-import Link from 'next/link';
-import { FiSearch, FiShoppingCart, FiUser } from 'react-icons/fi'; // Sử dụng các icon
+
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { FiSearch, FiShoppingCart, FiUser } from 'react-icons/fi'
 
 const Header = () => {
-  const router = useRouter();
+  const router = useRouter()
+
   return (
-    <header className="fixed top-0 left-0 w-full bg-white shadow-md z-30">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between relative"> {/* Make the container relative */}
-        {/* Logo bên trái */}
-        <Link href="/" className="text-xl font-bold text-gray-800">
-          Logo
+    <header className="fixed left-0 top-0 z-30 w-full border-b border-stone-200 bg-[#fbfaf5]/95 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="flex items-center gap-3">
+          <span className="flex size-10 items-center justify-center rounded-lg bg-emerald-700 text-sm font-bold text-white">
+            BT
+          </span>
+          <span className="leading-tight">
+            <span className="block text-base font-semibold text-slate-950">Ba Tuyen Shop</span>
+            <span className="hidden text-xs font-medium uppercase tracking-[0.18em] text-emerald-700 sm:block">
+              Cửa hàng tổng hợp
+            </span>
+          </span>
         </Link>
 
-        {/* Navigation bên trái */}
-        {/* <nav className="hidden md:flex space-x-4">
-          <Link href="/shop" className="text-gray-700 hover:text-blue-500">Shop</Link>
-          <Link href="/category" className="text-gray-700 hover:text-blue-500">Category</Link>
-          <Link href="/contact" className="text-gray-700 hover:text-blue-500">Contact</Link>
-        </nav> */}
+        <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex">
+          <Link href="#quan-ao" className="hover:text-emerald-700">Quần áo</Link>
+          <Link href="#thuc-an" className="hover:text-emerald-700">Thức ăn</Link>
+          <Link href="#phan-bon" className="hover:text-emerald-700">Phân bón</Link>
+        </nav>
 
-        {/* Logo/Tên thương hiệu ở giữa (có thể ẩn trên mobile) */}
-        <div className="hidden md:block absolute top-1/2 transform -translate-y-1/2 text-center" style={{ left: '40%' }}>
-          <Link href="/" className="text-2xl font-bold text-blue-500">
-            Cửa Hàng Bà Tuyến
-          </Link>
-        </div>
-
-        {/* Icons bên phải */}
-        <div className="flex items-center space-x-4">
-          <FiSearch className="text-xl text-gray-700 cursor-pointer" />
-          <div className="relative">
-            <FiShoppingCart className="text-xl text-gray-700 cursor-pointer" />
-          </div>
-          <FiUser className="text-xl text-gray-700 cursor-pointer" 
-           onClick={() => router.push('/admin')}
-          />
+        <div className="flex items-center gap-2">
+          <button className="flex size-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-white hover:text-emerald-700" aria-label="Tìm kiếm">
+            <FiSearch className="text-xl" />
+          </button>
+          <button className="relative flex size-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-white hover:text-emerald-700" aria-label="Giỏ hàng">
+            <FiShoppingCart className="text-xl" />
+          </button>
+          <button
+            className="flex size-10 items-center justify-center rounded-lg bg-slate-900 text-white transition hover:bg-emerald-800"
+            aria-label="Quản trị"
+            onClick={() => router.push('/admin')}
+          >
+            <FiUser className="text-xl" />
+          </button>
         </div>
       </div>
     </header>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

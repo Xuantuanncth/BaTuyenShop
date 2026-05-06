@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { auth } from '../../utils/firebaseConfig'
+import { getAuthClient } from '../../utils/firebaseConfig'
 import { isSignInWithEmailLink, signInWithEmailLink, updatePassword } from 'firebase/auth'
 
 export default function FinishSignInPage() {
@@ -12,6 +12,8 @@ export default function FinishSignInPage() {
   const router = useRouter()
 
   useEffect(() => {
+    const auth = getAuthClient()
+
     if (!isSignInWithEmailLink(auth, window.location.href)) {
       setError('Invalid or expired sign-in link.')
       return
@@ -28,6 +30,7 @@ export default function FinishSignInPage() {
     e.preventDefault()
 
     try {
+      const auth = getAuthClient()
       const result = await signInWithEmailLink(auth, email, window.location.href)
       console.log('User signed in:', result.user)
 

@@ -5,13 +5,14 @@ import ProductSection from '@/components/ProductSection'
 
 export default function Home() {
   return (
-    <main className="bg-white text-gray-800">
+    <main className="min-h-screen bg-[#fbfaf5] text-slate-900">
       <Header />
       <HeroSection />
-      <ProductSection title="Quần Áo" category="quan-ao" />
-      <ProductSection title="Thức Ăn Chăn Nuôi" category="thuc-an" />
-      <ProductSection title="Phân Bón" category="phan-bon" />
-
+      <div className="border-y border-stone-200 bg-white/70">
+        <ProductSection title="Quần áo" category="quan-ao" eyebrow="Lựa chọn hằng ngày" />
+        <ProductSection title="Thức ăn chăn nuôi" category="thuc-an" eyebrow="Hàng nông nghiệp" />
+        <ProductSection title="Phân bón" category="phan-bon" eyebrow="Chăm sóc mùa vụ" />
+      </div>
       <Footer />
     </main>
   )

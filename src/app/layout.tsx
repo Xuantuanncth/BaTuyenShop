@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Ba Tuyen Shop",
-  description: "Cửa hàng Bà Tuyến - Nơi cung cấp sản phẩm chất lượng",
+  description: "Cửa hàng Bà Tuyến - quần áo, thức ăn chăn nuôi và phân bón chất lượng",
   icons: {
     icon: "/favicon.png",
   },
@@ -26,12 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+    <html lang="vi" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

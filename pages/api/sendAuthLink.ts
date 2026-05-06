@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { sendSignInLinkToEmail } from 'firebase/auth'
-import { auth } from '../../src/utils/firebaseConfig'
+import { getAuthClient } from '../../src/utils/firebaseConfig'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // Send the sign-in link to the user's email
-      await sendSignInLinkToEmail(auth, email, actionCodeSettings)
+      await sendSignInLinkToEmail(getAuthClient(), email, actionCodeSettings)
 
       // Save the email in localStorage (client-side)
       res.status(200).json({ message: 'Authentication link sent to email' })
