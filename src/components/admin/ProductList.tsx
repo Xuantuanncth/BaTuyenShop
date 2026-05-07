@@ -1,6 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { getDb } from '../../utils/firebaseConfig'
-import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore'
 
 interface Product {
   id: string // Use string since Firestore document IDs are strings
@@ -31,13 +29,15 @@ const ProductList = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const querySnapshot = await getDocs(collection(getDb(), 'products'))
-        const fetchedProducts: Product[] = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Product[]
-        setProducts(fetchedProducts)
-        console.log(`Fetched ${fetchedProducts.length} products from Firebase.`)
+        const response = await fetch('/api/products')
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch products')
+        }
+
+        setProducts(data.products)
+        console.log(`Fetched ${data.products.length} products from Firebase.`)
       } catch (error) {
         console.error('Error fetching products:', error)
       }
@@ -86,9 +86,18 @@ const ProductList = () => {
       }
 
       const productData = { ...newProduct, image: imageUrl, public_id: publicId }
-      const docRef = await addDoc(collection(getDb(), 'products'), productData)
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productData),
+      })
+      const data = await response.json()
 
-      setProducts([...products, { ...productData, id: docRef.id }])
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to add product')
+      }
+
+      setProducts([...products, data.product])
       setIsModalOpen(false)
       setNewProduct({ id: '', name: '', description: '', category: 'quan-ao', price: 0, quantity: 0 })
       setImageFile(null)
@@ -102,7 +111,14 @@ const ProductList = () => {
       // Delete the product document from Firebase
       console.log(`Deleted product with ID: ${productId} from Firebase.`)
       console.log(`Deleted product with ID: ${publicId} from Firebase.`)
-      await deleteDoc(doc(getDb(), 'products', productId))
+      const deleteResponse = await fetch(`/api/products?id=${encodeURIComponent(productId)}`, {
+        method: 'DELETE',
+      })
+
+      if (!deleteResponse.ok) {
+        const data = await deleteResponse.json()
+        throw new Error(data.message || 'Failed to delete product')
+      }
 
       // If the product has an associated image, delete it from Cloudinary
       if (publicId) {

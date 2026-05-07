@@ -48,13 +48,6 @@ export default function LoginPage() {
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">
           Login
         </button>
-        <button
-          type="button"
-          onClick={() => router.push('/create-account')} // Redirect to create account page
-          className="w-full bg-gray-300 text-gray-700 py-2 rounded mt-4"
-        >
-          Create Account
-        </button>
       </form>
     </div>
   )
