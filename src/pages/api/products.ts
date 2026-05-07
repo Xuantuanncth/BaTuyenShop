@@ -66,6 +66,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(201).json({ product: { id: docRef.id, ...product } })
     }
 
+    if (req.method === 'PATCH') {
+      const id = typeof req.query.id === 'string' ? req.query.id : ''
+      if (!/^[A-Za-z0-9_-]{8,}$/.test(id)) {
+        return res.status(400).json({ message: 'Invalid product id' })
+      }
+
+      const product = parseProduct(req.body)
+      await db.collection('products').doc(id).update(product)
+      return res.status(200).json({ product: { id, ...product } })
+    }
+
     if (req.method === 'DELETE') {
       const id = typeof req.query.id === 'string' ? req.query.id : ''
       if (!/^[A-Za-z0-9_-]{8,}$/.test(id)) {

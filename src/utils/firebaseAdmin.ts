@@ -3,8 +3,16 @@ import { getAuth } from 'firebase-admin/auth'
 import { getFirestore } from 'firebase-admin/firestore'
 import type { NextApiRequest } from 'next'
 
+function isLocalAuthBypassEnabled() {
+  return process.env.NODE_ENV !== 'production' && process.env.DISABLE_LOCAL_AUTH !== 'false'
+}
+
 function getPrivateKey() {
-  return process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
+  return process.env.FIREBASE_PRIVATE_KEY
+    ?.trim()
+    .replace(/^["']|["']$/g, '')
+    .replace(/\\n/g, '\n')
+    .replace(/\r/g, '')
 }
 
 function getAdminApp() {
@@ -51,6 +59,13 @@ export function isAllowedAdminEmail(email?: string) {
 }
 
 export async function verifyAdminToken(token?: string) {
+  if (!token && isLocalAuthBypassEnabled()) {
+    return {
+      uid: 'local-dev-admin',
+      email: 'local-dev-admin@example.com',
+    }
+  }
+
   if (!token) return null
 
   try {
@@ -63,6 +78,13 @@ export async function verifyAdminToken(token?: string) {
 }
 
 export async function requireAdminApi(req: NextApiRequest) {
+  if (isLocalAuthBypassEnabled()) {
+    return {
+      uid: 'local-dev-admin',
+      email: 'local-dev-admin@example.com',
+    }
+  }
+
   const token = req.cookies['admin-token']
   const admin = await verifyAdminToken(token)
 
