@@ -67,6 +67,7 @@ const HeroSection = () => {
               width={92}
               height={92}
               className="object-contain"
+              style={{ width: '92px', height: 'auto' }}
             />
           </div>
         </div>

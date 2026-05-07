@@ -15,9 +15,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Ba Tuyen Shop",
   description: "Cửa hàng Bà Tuyến - quần áo, thức ăn chăn nuôi và phân bón chất lượng",
-  icons: {
-    icon: "/favicon.png",
-  },
 };
 
 export default function RootLayout({
