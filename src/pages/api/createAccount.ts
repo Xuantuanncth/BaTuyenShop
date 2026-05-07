@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
-import { getAuthClient } from '../../src/utils/firebaseConfig'
+import { getAuthClient } from '../../utils/firebaseConfig'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
