@@ -10,6 +10,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       // Authenticate the user with Firebase
+      console.log('Attempting to sign in with email:', email)
+      console.log("password:", password ? '******' : 'No password provided')
       const userCredential = await signInWithEmailAndPassword(getAuthClient(), email, password)
       const token = await userCredential.user.getIdToken()
       const verifiedToken = await verifyAdminToken(token)
