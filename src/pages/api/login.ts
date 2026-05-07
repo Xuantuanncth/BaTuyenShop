@@ -2,6 +2,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { getAuthClient } from '../../utils/firebaseConfig'
+import { isAllowedAdminEmail, verifyAdminToken } from '../../utils/firebaseAdmin'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -11,9 +12,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Authenticate the user with Firebase
       const userCredential = await signInWithEmailAndPassword(getAuthClient(), email, password)
       const token = await userCredential.user.getIdToken()
+      const verifiedToken = await verifyAdminToken(token)
+
+      if (!verifiedToken || !isAllowedAdminEmail(verifiedToken.email)) {
+        return res.status(403).json({ message: 'This account is not allowed to access admin.' })
+      }
 
       // Set the token as a cookie
-      res.setHeader('Set-Cookie', `admin-token=${token}; Path=/; HttpOnly`)
+      const secure = process.env.NODE_ENV === 'production' ? '; Secure' : ''
+      res.setHeader(
+        'Set-Cookie',
+        `admin-token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=43200${secure}`,
+      )
       return res.status(200).json({ message: 'Login successful' })
     } catch (error) {
       console.error('Error logging in:', error)

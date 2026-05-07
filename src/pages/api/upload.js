@@ -1,5 +1,14 @@
 // filepath: d:\Working\NextJs\BaTuyenShop\pages\api\upload.js
 import { v2 as cloudinary } from 'cloudinary';
+import { isSameOriginRequest, requireAdminApi } from '../../utils/firebaseAdmin';
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '5mb',
+    },
+  },
+};
 
 // Configure Cloudinary using environment variables
 cloudinary.config({
@@ -11,17 +20,29 @@ cloudinary.config({
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
+      if (!isSameOriginRequest(req)) {
+        return res.status(403).json({ error: 'Invalid request origin' });
+      }
+
+      await requireAdminApi(req);
+
       const { file } = req.body; // Expect the file (base64 string) in the request body
+
+      if (typeof file !== 'string' || !/^data:image\/(png|jpe?g|webp);base64,/.test(file)) {
+        return res.status(400).json({ error: 'Only PNG, JPG, JPEG, or WEBP images are allowed' });
+      }
 
       // Upload the image to Cloudinary
       const uploadResult = await cloudinary.uploader.upload(file, {
         folder: 'products', // Optional: Specify a folder in Cloudinary
+        resource_type: 'image',
       });
 
       res.status(200).json({ url: uploadResult.secure_url, public_id: uploadResult.public_id }); // Return the uploaded image URL and public_id
     } catch (error) {
       console.error('Error uploading to Cloudinary:', error);
-      res.status(500).json({ error: 'Failed to upload image' });
+      const status = error instanceof Error && error.message === 'Unauthorized' ? 401 : 500;
+      res.status(status).json({ error: status === 401 ? 'Unauthorized' : 'Failed to upload image' });
     }
   } else {
     res.status(405).json({ error: 'Method not allowed' });
