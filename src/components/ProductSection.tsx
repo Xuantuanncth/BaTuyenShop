@@ -49,7 +49,7 @@ export default function ProductSection({
   const visible = filtered.slice(0, 12)
 
   return (
-    <section id={category} className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <section id={category} className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-8">
       <div className="mb-6 flex flex-col justify-between gap-4 border-b border-stone-200 pb-5 sm:flex-row sm:items-end">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">{eyebrow}</p>

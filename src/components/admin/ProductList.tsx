@@ -291,8 +291,8 @@ const ProductList = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {products.map(product => (
-                  <tr key={product.id} className="hover:bg-slate-50">
+                {products.map((product, index) => (
+                  <tr key={product.id || `product-${index}`} className="hover:bg-slate-50">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-4">
                         <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-100">
@@ -354,61 +354,79 @@ const ProductList = () => {
               </button>
             </div>
 
-            <div className="grid max-h-[calc(92vh-145px)] gap-6 overflow-y-auto p-6 md:grid-cols-[0.9fr_1.1fr]">
-              <div>
+            <div className="flex max-h-[calc(92vh-140px)] flex-col overflow-y-auto p-6 md:flex-row md:items-start md:gap-8">
+              {/* Left Side: Image Upload */}
+              <div className="w-full shrink-0 space-y-4 md:w-72 lg:w-80">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex aspect-[4/3] w-full flex-col items-center justify-center overflow-hidden rounded-lg border border-dashed border-slate-300 bg-slate-50 text-center hover:border-emerald-300 hover:bg-emerald-50"
+                  className="group relative flex aspect-[4/3] w-full flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 transition-all hover:border-emerald-400 hover:bg-emerald-50/30"
                 >
                   {imagePreview ? (
-                    <img src={imagePreview} alt="Xem trước sản phẩm" className="h-full w-full object-cover" />
+                    <img src={imagePreview} alt="Xem trước sản phẩm" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   ) : (
-                    <>
-                      <FiUpload className="text-3xl text-emerald-700" />
-                      <span className="mt-3 text-sm font-semibold text-slate-800">
-                        {editingProduct ? 'Đổi ảnh sản phẩm' : 'Chọn ảnh sản phẩm'}
+                    <div className="flex flex-col items-center p-4">
+                      <div className="mb-3 flex size-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                        <FiUpload className="text-xl" />
+                      </div>
+                      <span className="text-sm font-bold text-slate-900">
+                        {editingProduct ? 'Đổi ảnh sản phẩm' : 'Tải ảnh lên'}
                       </span>
-                      <span className="mt-1 text-xs text-slate-500">PNG, JPG hoặc WEBP dưới 4MB</span>
-                    </>
+                      <span className="mt-1 text-xs text-slate-500 text-center">PNG, JPG hoặc WEBP (Max 4MB)</span>
+                    </div>
+                  )}
+                  {imagePreview && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-slate-950/20 opacity-0 transition-opacity group-hover:opacity-100">
+                      <span className="rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-900 shadow-lg">Thay đổi ảnh</span>
+                    </div>
                   )}
                 </button>
                 <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={handleFileChange} className="hidden" />
-                {imageFile && <p className="mt-3 truncate text-sm text-slate-500">Đã chọn: {imageFile.name}</p>}
+                
+                {imageFile && (
+                  <div className="rounded-lg bg-slate-50 p-3">
+                    <p className="truncate text-xs font-medium text-slate-500">Đã chọn tệp:</p>
+                    <p className="mt-1 truncate text-xs font-bold text-slate-900">{imageFile.name}</p>
+                  </div>
+                )}
+                
                 {editingProduct && !imageFile && imagePreview && (
-                  <p className="mt-3 text-sm text-slate-500">Đang dùng ảnh hiện tại. Chọn ảnh mới nếu muốn thay đổi.</p>
+                  <p className="text-xs leading-relaxed text-slate-500">
+                    Sản phẩm hiện đã có ảnh. Bạn có thể tải ảnh mới để thay thế.
+                  </p>
                 )}
               </div>
 
-              <div className="space-y-4">
+              {/* Right Side: Form Fields */}
+              <div className="mt-8 flex-1 space-y-5 md:mt-0">
                 <label className="block">
-                  <span className="text-sm font-semibold text-slate-700">Tên sản phẩm</span>
+                  <span className="text-sm font-bold text-slate-900">Tên sản phẩm</span>
                   <input
                     type="text"
                     value={newProduct.name}
                     onChange={event => setNewProduct({ ...newProduct, name: event.target.value })}
-                    className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    className="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition-all focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                     placeholder="Ví dụ: Áo thun cotton"
                   />
                 </label>
 
                 <label className="block">
-                  <span className="text-sm font-semibold text-slate-700">Mô tả</span>
+                  <span className="text-sm font-bold text-slate-900">Mô tả chi tiết</span>
                   <textarea
                     value={newProduct.description}
                     onChange={event => setNewProduct({ ...newProduct, description: event.target.value })}
-                    className="mt-2 min-h-28 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                    placeholder="Mô tả chất liệu, công dụng hoặc ghi chú bán hàng"
+                    className="mt-2 min-h-[120px] w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition-all focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                    placeholder="Mô tả chất liệu, công dụng hoặc ghi chú bán hàng..."
                   />
                 </label>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <label className="block">
-                    <span className="text-sm font-semibold text-slate-700">Danh mục</span>
+                    <span className="text-sm font-bold text-slate-900">Danh mục</span>
                     <select
                       value={newProduct.category}
                       onChange={event => setNewProduct({ ...newProduct, category: event.target.value })}
-                      className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                      className="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition-all focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                     >
                       {categories.map(category => (
                         <option key={category.value} value={category.value}>{category.label}</option>
@@ -417,26 +435,31 @@ const ProductList = () => {
                   </label>
 
                   <label className="block">
-                    <span className="text-sm font-semibold text-slate-700">Số lượng</span>
+                    <span className="text-sm font-bold text-slate-900">Số lượng tồn kho</span>
                     <input
                       type="number"
                       min={0}
                       value={newProduct.quantity}
                       onChange={event => setNewProduct({ ...newProduct, quantity: Number(event.target.value) })}
-                      className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                      className="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition-all focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                     />
                   </label>
                 </div>
 
                 <label className="block">
-                  <span className="text-sm font-semibold text-slate-700">Giá bán</span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={newProduct.price}
-                    onChange={event => setNewProduct({ ...newProduct, price: Number(event.target.value) })}
-                    className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                  />
+                  <span className="text-sm font-bold text-slate-900">Giá bán (VND)</span>
+                  <div className="relative mt-2">
+                    <input
+                      type="number"
+                      min={0}
+                      value={newProduct.price}
+                      onChange={event => setNewProduct({ ...newProduct, price: Number(event.target.value) })}
+                      className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition-all focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                    />
+                    <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
+                      <span className="text-xs font-bold text-slate-400 uppercase">đ</span>
+                    </div>
+                  </div>
                 </label>
               </div>
             </div>
