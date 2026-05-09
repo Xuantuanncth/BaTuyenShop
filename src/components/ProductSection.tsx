@@ -34,8 +34,8 @@ export default function ProductSection({
         const q = query(collection(getDb(), 'products'), where('category', '==', category))
         const querySnapshot = await getDocs(q)
         const products: Product[] = querySnapshot.docs.map(doc => ({
-          id: doc.id,
           ...doc.data(),
+          id: doc.id,
         })) as Product[]
         setFiltered(products)
       } catch (error) {

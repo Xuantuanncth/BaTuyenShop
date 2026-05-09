@@ -163,7 +163,13 @@ const ProductList = () => {
       }
 
       const productData = { ...newProduct, image: imageUrl, public_id: publicId }
-      const endpoint = editingProduct ? `/api/products?id=${encodeURIComponent(editingProduct.id)}` : '/api/products'
+      
+      const productId = editingProduct?.id || newProduct.id
+      if (editingProduct && !productId) {
+        throw new Error('Không tìm thấy ID sản phẩm để cập nhật. Vui lòng tải lại trang.')
+      }
+
+      const endpoint = editingProduct ? `/api/products?id=${encodeURIComponent(productId)}` : '/api/products'
       const response = await fetch(endpoint, {
         method: editingProduct ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },

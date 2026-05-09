@@ -53,7 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'GET') {
       const snapshot = await db.collection('products').get()
-      const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      const products = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
       return res.status(200).json({ products })
     }
 

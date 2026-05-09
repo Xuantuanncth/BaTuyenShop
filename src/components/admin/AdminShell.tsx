@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FiBarChart2, FiBox, FiChevronLeft, FiHome, FiSettings, FiShoppingBag, FiUsers } from 'react-icons/fi'
 import ProductList from '@/components/admin/ProductList'
+import OrderList from '@/components/admin/OrderList'
 
 const menuItems = [
   {
@@ -135,9 +136,7 @@ export default function AdminShell() {
 
         <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           {selectedMenu === 'products' && <ProductList />}
-          {selectedMenu === 'orders' && (
-            <PlaceholderPanel title="Quản lý đơn hàng" description="Khu vực này sẽ dùng để theo dõi đơn hàng, trạng thái thanh toán và giao nhận." />
-          )}
+          {selectedMenu === 'orders' && <OrderList />}
           {selectedMenu === 'users' && (
             <PlaceholderPanel title="Quản lý người dùng" description="Khu vực này sẽ dùng để xem tài khoản, phân quyền và lịch sử hoạt động." />
           )}
