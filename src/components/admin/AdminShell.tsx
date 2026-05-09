@@ -62,7 +62,7 @@ export default function AdminShell() {
   )
 
   return (
-    <div className="min-h-screen bg-[#f6f4ef] text-slate-900 lg:flex">
+    <div className="min-h-screen bg-[#f6f4ef] text-slate-900 lg:flex" suppressHydrationWarning>
       <aside className="border-b border-slate-200 bg-slate-950 text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-80 lg:flex-col lg:border-b-0 lg:border-r lg:border-slate-800">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-5">
           <button onClick={() => router.push('/')} className="flex items-center gap-3 text-left">

@@ -9,7 +9,7 @@ const Header = () => {
 
   return (
     <header className="fixed left-0 top-0 z-30 w-full border-b border-stone-200 bg-[#fbfaf5]/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
           <span className="flex size-10 items-center justify-center rounded-lg bg-emerald-700 text-sm font-bold text-white">
             BT
