@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { IoClose } from 'react-icons/io5'
+import { IoClose, IoAdd, IoRemove } from 'react-icons/io5'
+import { useCart } from '@/context/CartContext'
 
 interface Product {
   id: string
@@ -18,6 +19,18 @@ interface ProductModalProps {
 }
 
 const ProductModal = ({ product, onClose }: ProductModalProps) => {
+  const { addToCart } = useCart()
+  const [quantity, setQuantity] = useState(1)
+  const [isAdded, setIsAdded] = useState(false)
+
+  if (!product) return null
+
+  const handleAddToCart = () => {
+    addToCart(product, quantity)
+    setIsAdded(true)
+    setTimeout(() => setIsAdded(false), 2000)
+  }
+
   return (
     <AnimatePresence>
       {product && (
@@ -71,7 +84,7 @@ const ProductModal = ({ product, onClose }: ProductModalProps) => {
                   <h2 id="modal-title" className="text-2xl font-bold text-slate-950 md:text-3xl">
                     {product.name}
                   </h2>
-                  <div className="mt-4 max-h-[200px] overflow-y-auto pr-2">
+                  <div className="mt-4 max-h-[160px] overflow-y-auto pr-2">
                     <p id="modal-description" className="text-base leading-relaxed text-slate-600">
                       {product.description}
                     </p>
@@ -86,13 +99,32 @@ const ProductModal = ({ product, onClose }: ProductModalProps) => {
                         {typeof product.price === 'number' ? `${product.price.toLocaleString('vi-VN')} VND` : 'Liên hệ'}
                       </p>
                     </div>
+
+                    {/* Quantity Selector */}
+                    <div className="flex items-center gap-3 rounded-lg border border-slate-200 p-1">
+                      <button
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className="flex size-8 items-center justify-center rounded-md hover:bg-slate-100 text-slate-600"
+                      >
+                        <IoRemove size={18} />
+                      </button>
+                      <span className="w-6 text-center font-semibold text-slate-900">{quantity}</span>
+                      <button
+                        onClick={() => setQuantity(quantity + 1)}
+                        className="flex size-8 items-center justify-center rounded-md hover:bg-slate-100 text-slate-600"
+                      >
+                        <IoAdd size={18} />
+                      </button>
+                    </div>
                   </div>
                   
                   <button
-                    onClick={onClose}
-                    className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-slate-950 px-6 text-base font-semibold text-white transition-all hover:bg-emerald-800 active:scale-[0.98]"
+                    onClick={handleAddToCart}
+                    className={`mt-6 flex h-12 w-full items-center justify-center rounded-xl px-6 text-base font-semibold text-white transition-all active:scale-[0.98] ${
+                      isAdded ? 'bg-emerald-600' : 'bg-slate-950 hover:bg-emerald-800'
+                    }`}
                   >
-                    Đóng
+                    {isAdded ? 'Đã thêm vào giỏ!' : 'Thêm vào giỏ'}
                   </button>
                 </div>
               </div>
