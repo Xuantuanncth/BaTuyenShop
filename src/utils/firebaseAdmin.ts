@@ -4,7 +4,8 @@ import { getFirestore } from 'firebase-admin/firestore'
 import type { NextApiRequest } from 'next'
 
 function isLocalAuthBypassEnabled() {
-  return process.env.NODE_ENV !== 'production' && process.env.DISABLE_LOCAL_AUTH !== 'false'
+  // Only allow bypass in local development and only if explicitly enabled
+  return process.env.NODE_ENV === 'development' && process.env.ENABLE_LOCAL_AUTH_BYPASS === 'true'
 }
 
 console.log("by pass authen local", isLocalAuthBypassEnabled())

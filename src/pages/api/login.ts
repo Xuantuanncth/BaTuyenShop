@@ -1,51 +1,33 @@
-// filepath: d:\Working\NextJs\BaTuyenShop\pages\api\login.ts
 import { NextApiRequest, NextApiResponse } from 'next'
-import { signInWithEmailAndPassword } from 'firebase/auth'
-import { getAuthClient } from '../../utils/firebaseConfig'
 import { isAllowedAdminEmail, verifyAdminToken } from '../../utils/firebaseAdmin'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { email, password } = req.body
+    const { token } = req.body
+
+    if (!token) {
+      return res.status(400).json({ message: 'Token is required' })
+    }
 
     try {
-      // Authenticate the user with Firebase
-      console.log('Attempting to sign in with email:', email)
-      console.log("password:", password ? '******' : 'No password provided')
-      const userCredential = await signInWithEmailAndPassword(getAuthClient(), email, password)
-      const token = await userCredential.user.getIdToken()
-      const verifiedToken = await verifyAdminToken(token)
+      // Verify the token using firebase-admin
+      const decodedToken = await verifyAdminToken(token)
 
-      if (!verifiedToken || !isAllowedAdminEmail(verifiedToken.email)) {
-        if (process.env.DEBUG_FIREBASE === 'true') {
-          console.warn('[LoginAPI] Verification failed or email not allowed:', {
-            tokenPresent: !!token,
-            verified: !!verifiedToken,
-            email: verifiedToken?.email
-          })
-        }
-        return res.status(403).json({ message: 'This account is not allowed to access admin.' })
+      if (decodedToken && isAllowedAdminEmail(decodedToken.email)) {
+        // User is an admin, set the admin-token cookie
+        const secure = process.env.NODE_ENV === 'production' ? '; Secure' : ''
+        res.setHeader(
+          'Set-Cookie',
+          `admin-token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=43200${secure}`,
+        )
+        return res.status(200).json({ message: 'Admin login successful', role: 'admin' })
       }
 
-      // Set the token as a cookie
-      const secure = process.env.NODE_ENV === 'production' ? '; Secure' : ''
-      res.setHeader(
-        'Set-Cookie',
-        `admin-token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=43200${secure}`,
-      )
-      return res.status(200).json({ message: 'Login successful' })
+      // User is a regular customer (or at least valid Firebase user)
+      return res.status(200).json({ message: 'Login successful', role: 'customer' })
     } catch (error: any) {
-      console.error('Error logging in:', error)
-      
-      if (process.env.DEBUG_FIREBASE === 'true') {
-        return res.status(401).json({ 
-          message: 'Invalid credentials',
-          debug: error.message,
-          stack: error.stack
-        })
-      }
-      
-      return res.status(401).json({ message: 'Invalid credentials' })
+      console.error('Error verifying token:', error)
+      return res.status(401).json({ message: 'Invalid token' })
     }
   }
 

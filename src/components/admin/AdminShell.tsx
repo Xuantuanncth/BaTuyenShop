@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { FiBarChart2, FiBox, FiChevronLeft, FiHome, FiSettings, FiShoppingBag, FiUsers } from 'react-icons/fi'
 import ProductList from '@/components/admin/ProductList'
 import OrderList from '@/components/admin/OrderList'
+import UserList from '@/components/admin/UserList'
 
 const menuItems = [
   {
@@ -137,9 +138,7 @@ export default function AdminShell() {
         <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           {selectedMenu === 'products' && <ProductList />}
           {selectedMenu === 'orders' && <OrderList />}
-          {selectedMenu === 'users' && (
-            <PlaceholderPanel title="Quản lý người dùng" description="Khu vực này sẽ dùng để xem tài khoản, phân quyền và lịch sử hoạt động." />
-          )}
+          {selectedMenu === 'users' && <UserList />}
           {selectedMenu === 'reports' && (
             <PlaceholderPanel title="Thống kê và báo cáo" description="Khu vực này sẽ tổng hợp doanh thu, sản phẩm bán chạy và dữ liệu vận hành." />
           )}
