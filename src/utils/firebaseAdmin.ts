@@ -7,6 +7,8 @@ function isLocalAuthBypassEnabled() {
   return process.env.NODE_ENV !== 'production' && process.env.DISABLE_LOCAL_AUTH !== 'false'
 }
 
+console.log("by pass authen local", isLocalAuthBypassEnabled())
+
 const isDebug = process.env.DEBUG_FIREBASE === 'true'
 
 function getPrivateKey() {
@@ -61,7 +63,7 @@ function getAdminApp() {
     if (!projectId) missing.push('FIREBASE_PROJECT_ID')
     if (!clientEmail) missing.push('FIREBASE_CLIENT_EMAIL')
     if (!privateKey) missing.push('FIREBASE_PRIVATE_KEY')
-    
+
     const errorMsg = `Missing Firebase Admin service account configuration: ${missing.join(', ')}`
     if (isDebug) console.error(`[FirebaseAdmin] ${errorMsg}`)
     throw new Error(errorMsg)
@@ -96,16 +98,36 @@ export function getAdminDb() {
 }
 
 function getAdminEmails() {
-  return (process.env.ADMIN_EMAILS || '')
+  const rawEmails = process.env.ADMIN_EMAILS || ''
+  if (isDebug) {
+    console.log(`[FirebaseAdmin] Raw ADMIN_EMAILS: "${rawEmails}"`)
+  }
+  const emails = rawEmails
     .split(',')
     .map(email => email.trim().toLowerCase())
     .filter(Boolean)
+
+  if (isDebug) {
+    console.log(`[FirebaseAdmin] Parsed admin emails:`, emails)
+  }
+  return emails
 }
 
 export function isAllowedAdminEmail(email?: string) {
-  if (!email) return false
+  if (!email) {
+    if (isDebug) console.warn('[FirebaseAdmin] isAllowedAdminEmail: No email provided')
+    return false
+  }
+
   const adminEmails = getAdminEmails()
-  return adminEmails.length > 0 && adminEmails.includes(email.toLowerCase())
+  const normalizedEmail = email.trim().toLowerCase()
+  const isAllowed = adminEmails.includes(normalizedEmail)
+
+  if (isDebug && !isAllowed) {
+    console.warn(`[FirebaseAdmin] Email "${normalizedEmail}" not found in allowed list:`, adminEmails)
+  }
+
+  return isAllowed
 }
 
 export async function verifyAdminToken(token?: string) {
