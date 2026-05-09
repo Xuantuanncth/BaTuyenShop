@@ -7,22 +7,48 @@ function isLocalAuthBypassEnabled() {
   return process.env.NODE_ENV !== 'production' && process.env.DISABLE_LOCAL_AUTH !== 'false'
 }
 
+const isDebug = process.env.DEBUG_FIREBASE === 'true'
+
 function getPrivateKey() {
   let key = process.env.FIREBASE_PRIVATE_KEY
+  let source = 'FIREBASE_PRIVATE_KEY'
+
+  if (isDebug) {
+    console.log('[FirebaseAdmin] Checking private key sources...')
+  }
 
   // Fallback to Base64 if needed (Vercel best practice)
   if (!key && process.env.FIREBASE_PRIVATE_KEY_B64) {
+    if (isDebug) console.log('[FirebaseAdmin] Falling back to FIREBASE_PRIVATE_KEY_B64')
     key = Buffer.from(process.env.FIREBASE_PRIVATE_KEY_B64, 'base64').toString('utf8')
+    source = 'FIREBASE_PRIVATE_KEY_B64'
   }
 
-  if (!key) return undefined
+  if (!key) {
+    if (isDebug) console.error('[FirebaseAdmin] Private key not found in any source.')
+    return undefined
+  }
+
+  if (isDebug) {
+    console.log(`[FirebaseAdmin] Key found from source: ${source}`)
+    console.log(`[FirebaseAdmin] Key length: ${key.length}`)
+    console.log(`[FirebaseAdmin] Key starts with: ${key.substring(0, 20)}...`)
+    console.log(`[FirebaseAdmin] Key ends with: ...${key.substring(key.length - 20)}`)
+  }
 
   // Handle keys that might be wrapped in quotes or have escaped newlines
-  return key
+  const processedKey = key
     .replace(/^["']|["']$/g, '') // Remove wrapping quotes
     .replace(/\\n/g, '\n')       // Convert literal \n to actual newlines
     .replace(/\r/g, '')          // Remove carriage returns
     .trim()
+
+  if (isDebug && processedKey !== key) {
+    console.log('[FirebaseAdmin] Private key was processed (removed quotes/escaped newlines).')
+    console.log(`[FirebaseAdmin] Processed key length: ${processedKey.length}`)
+  }
+
+  return processedKey
 }
 
 function getAdminApp() {
@@ -31,20 +57,34 @@ function getAdminApp() {
   const privateKey = getPrivateKey()
 
   if (!projectId || !clientEmail || !privateKey) {
-    throw new Error('Missing Firebase Admin service account configuration.')
+    const missing = []
+    if (!projectId) missing.push('FIREBASE_PROJECT_ID')
+    if (!clientEmail) missing.push('FIREBASE_CLIENT_EMAIL')
+    if (!privateKey) missing.push('FIREBASE_PRIVATE_KEY')
+    
+    const errorMsg = `Missing Firebase Admin service account configuration: ${missing.join(', ')}`
+    if (isDebug) console.error(`[FirebaseAdmin] ${errorMsg}`)
+    throw new Error(errorMsg)
   }
 
   if (getApps().length > 0) {
+    if (isDebug) console.log('[FirebaseAdmin] Reusing existing app instance')
     return getApps()[0]
   }
 
-  return initializeApp({
-    credential: cert({
-      projectId,
-      clientEmail,
-      privateKey,
-    }),
-  })
+  if (isDebug) console.log('[FirebaseAdmin] Initializing new app instance')
+  try {
+    return initializeApp({
+      credential: cert({
+        projectId,
+        clientEmail,
+        privateKey,
+      }),
+    })
+  } catch (error) {
+    if (isDebug) console.error('[FirebaseAdmin] Initialization failed:', error)
+    throw error
+  }
 }
 
 export function getAdminAuth() {
@@ -80,9 +120,15 @@ export async function verifyAdminToken(token?: string) {
 
   try {
     const decoded = await getAdminAuth().verifyIdToken(token, true)
-    if (!isAllowedAdminEmail(decoded.email)) return null
+    if (!isAllowedAdminEmail(decoded.email)) {
+      if (isDebug) console.warn(`[FirebaseAdmin] Email not allowed: ${decoded.email}`)
+      return null
+    }
     return decoded
-  } catch {
+  } catch (error) {
+    if (isDebug) {
+      console.error('[FirebaseAdmin] Token verification failed:', error)
+    }
     return null
   }
 }

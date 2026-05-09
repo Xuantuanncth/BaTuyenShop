@@ -17,6 +17,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const verifiedToken = await verifyAdminToken(token)
 
       if (!verifiedToken || !isAllowedAdminEmail(verifiedToken.email)) {
+        if (process.env.DEBUG_FIREBASE === 'true') {
+          console.warn('[LoginAPI] Verification failed or email not allowed:', {
+            tokenPresent: !!token,
+            verified: !!verifiedToken,
+            email: verifiedToken?.email
+          })
+        }
         return res.status(403).json({ message: 'This account is not allowed to access admin.' })
       }
 
@@ -27,8 +34,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         `admin-token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=43200${secure}`,
       )
       return res.status(200).json({ message: 'Login successful' })
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error logging in:', error)
+      
+      if (process.env.DEBUG_FIREBASE === 'true') {
+        return res.status(401).json({ 
+          message: 'Invalid credentials',
+          debug: error.message,
+          stack: error.stack
+        })
+      }
+      
       return res.status(401).json({ message: 'Invalid credentials' })
     }
   }
