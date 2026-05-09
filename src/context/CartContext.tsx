@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import CartToast from '@/components/CartToast'
 
 export interface CartItem {
   id: string
@@ -20,6 +21,7 @@ interface CartContextType {
   totalAmount: number
   totalQuantity: number
   isMounted: boolean
+  showToast: (message: string) => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -27,6 +29,15 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([])
   const [isMounted, setIsMounted] = useState(false)
+  const [toast, setToast] = useState({ isVisible: false, message: '' })
+
+  const showToast = (message: string) => {
+    setToast({ isVisible: true, message })
+  }
+
+  const hideToast = () => {
+    setToast(prev => ({ ...prev, isVisible: false }))
+  }
 
   // Hydration safety: only load from localStorage after mounting
   useEffect(() => {
@@ -70,6 +81,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         },
       ]
     })
+    showToast(`Đã thêm ${quantity} x ${product.name} vào giỏ hàng`)
   }
 
   const removeFromCart = (id: string) => {
@@ -104,9 +116,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         totalAmount,
         totalQuantity,
         isMounted,
+        showToast,
       }}
     >
       {children}
+      <CartToast 
+        isVisible={toast.isVisible} 
+        message={toast.message} 
+        onClose={hideToast} 
+      />
     </CartContext.Provider>
   )
 }
