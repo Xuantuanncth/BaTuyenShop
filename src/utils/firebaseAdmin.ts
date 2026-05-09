@@ -8,11 +8,21 @@ function isLocalAuthBypassEnabled() {
 }
 
 function getPrivateKey() {
-  return process.env.FIREBASE_PRIVATE_KEY
-    ?.trim()
-    .replace(/^["']|["']$/g, '')
-    .replace(/\\n/g, '\n')
-    .replace(/\r/g, '')
+  let key = process.env.FIREBASE_PRIVATE_KEY
+
+  // Fallback to Base64 if needed (Vercel best practice)
+  if (!key && process.env.FIREBASE_PRIVATE_KEY_B64) {
+    key = Buffer.from(process.env.FIREBASE_PRIVATE_KEY_B64, 'base64').toString('utf8')
+  }
+
+  if (!key) return undefined
+
+  // Handle keys that might be wrapped in quotes or have escaped newlines
+  return key
+    .replace(/^["']|["']$/g, '') // Remove wrapping quotes
+    .replace(/\\n/g, '\n')       // Convert literal \n to actual newlines
+    .replace(/\r/g, '')          // Remove carriage returns
+    .trim()
 }
 
 function getAdminApp() {
