@@ -6,6 +6,8 @@ import { IoCheckmarkCircle, IoArrowBack } from 'react-icons/io5'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { getDb } from '@/utils/firebaseConfig'
 import { useCart } from '@/context/CartContext'
+import { useAuth } from '@/context/AuthContext'
+import { useEffect } from 'react'
 
 interface CheckoutFormProps {
   onBack: () => void
@@ -14,6 +16,7 @@ interface CheckoutFormProps {
 
 const CheckoutForm = ({ onBack, onSuccess }: CheckoutFormProps) => {
   const { items, totalAmount, clearCart } = useCart()
+  const { user, metadata } = useAuth()
   const [loading, setLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState('')
@@ -26,6 +29,17 @@ const CheckoutForm = ({ onBack, onSuccess }: CheckoutFormProps) => {
     // Honeypot field
     website: '', 
   })
+
+  useEffect(() => {
+    if (metadata) {
+      setFormData(prev => ({
+        ...prev,
+        name: metadata.name || prev.name,
+        phone: metadata.phone || prev.phone,
+        address: metadata.address || prev.address,
+      }))
+    }
+  }, [metadata])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -55,6 +69,7 @@ const CheckoutForm = ({ onBack, onSuccess }: CheckoutFormProps) => {
 
     try {
       const orderData = {
+        userId: user?.uid || 'guest',
         customer: {
           name: formData.name,
           phone: formData.phone,

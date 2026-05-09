@@ -28,14 +28,14 @@ const HeroSection = ({ isAdmin, initialData }: HeroSectionProps) => {
       reader.readAsDataURL(file)
       reader.onload = async () => {
         const base64 = reader.result as string
-        
+
         // 1. Upload to Cloudinary
         const uploadRes = await fetch('/api/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ file: base64 }),
         })
-        
+
         if (!uploadRes.ok) throw new Error('Upload failed')
         const { url } = await uploadRes.json()
 
@@ -47,7 +47,7 @@ const HeroSection = ({ isAdmin, initialData }: HeroSectionProps) => {
         })
 
         if (!settingsRes.ok) throw new Error('Failed to save settings')
-        
+
         setThumbUrl(url)
         alert('Cập nhật ảnh thành công!')
       }
@@ -64,16 +64,16 @@ const HeroSection = ({ isAdmin, initialData }: HeroSectionProps) => {
       {/* Background with premium feel */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[#fbfaf5]" />
-        <div 
-          className="absolute inset-0 opacity-[0.03]" 
-          style={{ backgroundImage: 'radial-gradient(#065f46 0.5px, transparent 0.5px)', backgroundSize: '24px 24px' }} 
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: 'radial-gradient(#065f46 0.5px, transparent 0.5px)', backgroundSize: '24px 24px' }}
         />
       </div>
 
       <div className="relative z-10 mx-auto grid min-h-[680px] max-w-[1440px] grid-cols-1 items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
-        
+
         {/* Left Content */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
@@ -90,7 +90,7 @@ const HeroSection = ({ isAdmin, initialData }: HeroSectionProps) => {
             </div>
           </motion.div>
 
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
@@ -102,16 +102,16 @@ const HeroSection = ({ isAdmin, initialData }: HeroSectionProps) => {
             </span>
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
             className="mt-8 max-w-xl text-lg leading-relaxed text-slate-600 sm:text-xl"
           >
-            Ba Tuyen Shop cung cấp quần áo thời trang, thức ăn chăn nuôi chất lượng và phân bón chính hãng. Tất cả trong một điểm đến tin cậy.
+            Bà Tuyến Shop cung cấp quần áo thời trang, thức ăn chăn nuôi chất lượng và phân bón chính hãng. Tất cả trong một điểm đến tin cậy.
           </motion.p>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
@@ -133,7 +133,7 @@ const HeroSection = ({ isAdmin, initialData }: HeroSectionProps) => {
           </motion.div>
 
           {/* Stats / Trust Badges */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.6 }}
@@ -156,7 +156,7 @@ const HeroSection = ({ isAdmin, initialData }: HeroSectionProps) => {
         </motion.div>
 
         {/* Right Content - Visual */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, ease: "easeOut" }}
@@ -174,7 +174,7 @@ const HeroSection = ({ isAdmin, initialData }: HeroSectionProps) => {
                   sizes="(min-width: 1024px) 45vw, 100vw"
                   className="object-cover transition duration-700 group-hover:scale-105"
                 />
-                
+
                 {/* Overlay Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-40" />
               </>
@@ -207,7 +207,7 @@ const HeroSection = ({ isAdmin, initialData }: HeroSectionProps) => {
             )}
 
             {/* Floating Info Card */}
-            <motion.div 
+            <motion.div
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.8, duration: 0.6 }}
@@ -230,8 +230,8 @@ const HeroSection = ({ isAdmin, initialData }: HeroSectionProps) => {
           {/* Decorative Elements */}
           <div className="absolute -top-10 -right-10 -z-10 size-40 rounded-full bg-emerald-200/30 blur-3xl" />
           <div className="absolute -bottom-10 -left-10 -z-10 size-60 rounded-full bg-amber-200/20 blur-3xl" />
-          
-          <motion.div 
+
+          <motion.div
             initial={{ scale: 0, rotate: -20 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ delay: 1, type: "spring", stiffness: 100 }}
