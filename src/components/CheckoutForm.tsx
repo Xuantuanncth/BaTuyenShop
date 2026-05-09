@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
+import { motion } from 'framer-motion'
+import { IoCheckmarkCircle, IoArrowBack } from 'react-icons/io5'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { getDb } from '@/utils/firebaseConfig'
 import { useCart } from '@/context/CartContext'
@@ -13,6 +15,7 @@ interface CheckoutFormProps {
 const CheckoutForm = ({ onBack, onSuccess }: CheckoutFormProps) => {
   const { items, totalAmount, clearCart } = useCart()
   const [loading, setLoading] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState('')
   
   const [formData, setFormData] = useState({
@@ -38,9 +41,8 @@ const CheckoutForm = ({ onBack, onSuccess }: CheckoutFormProps) => {
     if (formData.website) {
       console.warn('Bot detected via honeypot.')
       setLoading(false)
-      // Act as if it succeeded but don't do anything
       clearCart()
-      onSuccess()
+      setIsSubmitted(true)
       return
     }
 
@@ -74,14 +76,37 @@ const CheckoutForm = ({ onBack, onSuccess }: CheckoutFormProps) => {
       await addDoc(collection(getDb(), 'orders'), orderData)
       
       clearCart()
-      onSuccess()
-      alert('Đặt hàng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.')
+      setIsSubmitted(true)
     } catch (err) {
       console.error('Error placing order:', err)
       setError('Đã có lỗi xảy ra. Vui lòng thử lại sau.')
     } finally {
       setLoading(false)
     }
+  }
+
+  if (isSubmitted) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="flex flex-col items-center justify-center py-12 text-center"
+      >
+        <div className="mb-6 flex size-24 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+          <IoCheckmarkCircle size={64} />
+        </div>
+        <h3 className="text-2xl font-bold text-slate-900">Đặt hàng thành công!</h3>
+        <p className="mt-4 max-w-xs text-base leading-relaxed text-slate-500">
+          Cảm ơn quý khách đã tin tưởng lựa chọn Ba Tuyen Shop. Chúng tôi sẽ liên hệ xác nhận đơn hàng trong thời gian sớm nhất.
+        </p>
+        <button
+          onClick={onSuccess}
+          className="mt-10 flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-8 text-sm font-bold text-white transition-all hover:bg-emerald-800 active:scale-[0.98]"
+        >
+          Tiếp tục mua sắm
+        </button>
+      </motion.div>
+    )
   }
 
   return (
