@@ -89,16 +89,3 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 5. Người dùng vào web app sẽ thấy sản phẩm với ảnh đầy đủ.
 
 ---
-
-# 📦 Kết cấu dữ liệu `Product`
-
-```typescript
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  image: string;    // URL ảnh từ Cloudinary
-  category: string;
-  quantity?: number;
-  price?: number;
-}
